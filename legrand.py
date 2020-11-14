@@ -9,8 +9,7 @@ import time
 
 HOST = 'LCM1.local'
 PORT = 2112
-LC7001_PASSWORD = b'12345678'
-
+LC7001_PASSWORD = b'12345678' # For testing purposes :)
 
 def socket_connection():
     try:
@@ -71,11 +70,12 @@ def recv_timeout(the_socket,timeout=5):
 
 def encrypt_key(challenge):
     private_key = binascii.unhexlify(hashlib.md5(LC7001_PASSWORD).hexdigest())
+    print('Password MD5:', binascii.hexlify(private_key).decode('ascii'))
     encryptor = AES.new(private_key, AES.MODE_ECB)
     lc7001_hello = binascii.unhexlify(challenge)
     ciphertext = encryptor.encrypt(lc7001_hello)
     challenge_answer = binascii.hexlify(ciphertext)
-    print('Encrypted Response', challenge_answer.decode('ascii').upper())
+    print('Encrypted Response:', challenge_answer.decode('ascii').upper())
 
     return challenge_answer
 
@@ -86,6 +86,7 @@ if __name__ == "__main__":
     total_data = recv_timeout(s).split( )
     total_data = [x.replace('\x00', '') for x in total_data]
     challenge = total_data[2]
+    print('LC7001 password:', LC7001_PASSWORD.decode('ascii'))
     print("Challenge:", challenge)
 
     challenge_answer = encrypt_key(challenge)
